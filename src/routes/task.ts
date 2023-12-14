@@ -19,6 +19,12 @@ routes.get(
     task.getAllTasks
 );
 
+// Route for getting all tasks by QRCODE
+routes.get(
+    "/get-all-tasks/{qrcode}",
+    task.getAllTasks
+);
+
 // Route for getting task by id
 routes.get(
     "/get-single-task",

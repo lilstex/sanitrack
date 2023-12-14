@@ -37,15 +37,23 @@ paths:
           description: access token
           required: true
           default: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MzIwODQxODB9.60qxpvDKlXV3x4-XDf2GRWgEkuSvL_XuCYPbn5jil-0
-        - in: query
-          name: page
-          type: number
-          default: 1
+      responses:
+        200:
+          description: Fetched successfully
+
+  /api/task/get-all-tasks/{qrcode}:
+    get:
+      tags:
+        - TASK
+      summary: GET ALL TASKS BY QRCODE ENDPOINT
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: qrcode
+          description: QR code data encoded as string
           required: true
-        - in: query
-          name: documentCount
-          type: number
-          default: 10
+          type: string
       responses:
         200:
           description: Fetched successfully
@@ -121,27 +129,27 @@ paths:
           description: Task submission successful
 
   /api/task/delete-task:
-    delete:
-      tags:
-        - TASK
-      summary: DELETE SINGLE TASK BY ID ENDPOINT
-      produces:
-        - application/json
-      parameters:
-        - in: header
-          name: authorization
-          description: access token
-          required: true
-          default: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MzIwODQxODB9.60qxpvDKlXV3x4-XDf2GRWgEkuSvL_XuCYPbn5jil-0
-        - in: body
-          name: Delete task endpoint
-          description: This endpoint deletes single task
-          required: true
-          schema:
-            $ref: "#/definitions/deleteTask"
-      responses:
-        200:
-          description: Task deleted successfully
+      delete:
+        tags:
+          - TASK
+        summary: DELETE SINGLE TASK BY ID ENDPOINT
+        produces:
+          - application/json
+        parameters:
+          - in: header
+            name: authorization
+            description: access token
+            required: true
+            default: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MzIwODQxODB9.60qxpvDKlXV3x4-XDf2GRWgEkuSvL_XuCYPbn5jil-0
+          - in: body
+            name: Delete task endpoint
+            description: This endpoint deletes single task
+            required: true
+            schema:
+              $ref: "#/definitions/deleteTask"
+        responses:
+          200:
+            description: Task deleted successfully
 
 
 definitions:

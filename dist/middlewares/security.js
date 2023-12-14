@@ -9,7 +9,8 @@ const response_1 = __importDefault(require("../helpers/response"));
 // Define a list of non-restricted paths
 const nonRestricted = [
     "/api/create-user",
-    "/api/login"
+    "/api/login",
+    "/api/task/get-all-tasks/{qrcode}",
 ];
 // Middleware function to handle authentication and authorization
 const middleware = (req, res, next) => {

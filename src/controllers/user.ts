@@ -4,6 +4,8 @@ import jwt from 'jsonwebtoken';
 import customResponse from '../helpers/response';
 import User from '../models/user';
 import { AuthenticatedRequest } from '../middlewares/security';
+import TaskService from '../services/task';
+
 // Load environment variables from a .env file
 import dotenv from 'dotenv';
 dotenv.config();
@@ -77,8 +79,18 @@ const login = async (req: Request, res: Response): Promise<void> => {
             expiresIn: TOKEN_VALIDATION_DURATION,
         });
 
+        // Generate a QRCODE for cleaner
+        let qrcode;
+        if(user.role === 'cleaner') {
+            const userId: string = user._id;
+            const role: string = user.role;
+            const qrCodeData: string = JSON.stringify({ userId, role });
+            qrcode = await TaskService.generateQRCode(qrCodeData);
+        }
+
         // Serialize user data
         const userData = {
+            QRCode: qrcode || null,
             token,
             id: user._id,
             role: user.role,

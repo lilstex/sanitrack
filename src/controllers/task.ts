@@ -3,6 +3,7 @@ import TaskModel from '../models/task';
 import customResponse from '../helpers/response';
 import { AuthenticatedRequest } from '../middlewares/security';
 import RoomService from '../services/room';
+import TaskService from '../services/task';
 
 /**
  * Create a new task with its details.
@@ -101,33 +102,41 @@ const submitTask = async (req: AuthenticatedRequest, res: Response): Promise<voi
  */
 const getAllTasks = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
-        const { role, userId } = req.auth;
-        // Explicitly cast query parameters to numbers and handle undefined
-        const page = req.query.page ? Number(req.query.page) : undefined;
-        const documentCount = req.query.documentCount ? Number(req.query.documentCount) : undefined;
-
-        // Check if page or documentCount is undefined before using them
-        if (page === undefined || documentCount === undefined) {
-            return customResponse.badRequestResponse('Invalid page or documentCount', res);
+        let urole;
+        let uid;
+        
+        if (req.params.qrcode) {
+            // Extract the QR code parameter from the request
+            const { qrcode } = req.params;
+        
+            // Decode the QR code data
+            const decodedData = TaskService.decodeQRCode(Buffer.from(qrcode, 'base64'));
+        
+            // Extract user ID or other relevant data from the decoded QR code
+            ({ userId: uid, role: urole } = decodedData);
+        } else if (req.auth) {
+            // Destructure role and userId from req.auth
+            ({ userId: uid, role: urole } = req.auth);
+        } else {
+            return customResponse.badRequestResponse('Missing params.', res);
         }
+        
         let query = {};
 
-        switch (role) {
+        switch (urole) {
             case 'cleaner':
-                query = { assigned_cleaner: userId, isSubmitted: false };
+                query = { assigned_cleaner: uid, isSubmitted: false };
                 break;
             case 'inspector':
-                query = { assigned_inspector: userId };
+                query = { assigned_inspector: uid };
                 break;
             case 'manager':
-                query = { assigned_manager: userId };
+                query = { assigned_manager: uid };
                 break;
         }
 
         const taskQuery = TaskModel.find(query)
             .populate('assigned_inspector assigned_manager assigned_cleaner assigned_room')
-            .limit(documentCount)
-            .skip(documentCount * (page - 1))
             .sort({ createdAt: -1 });
 
         const [totalTasks, allTasks] = await Promise.all([
@@ -135,16 +144,9 @@ const getAllTasks = async (req: AuthenticatedRequest, res: Response): Promise<vo
             taskQuery.exec(),
         ]);
 
-        // Calculate prevPage and nextPage
-        const prevPage = page > 1 ? page - 1 : null;
-        const nextPage = documentCount * page < totalTasks ? page + 1 : null;
 
         // Prepare data to send in the response
         const data = {
-            page,
-            prevPage,
-            nextPage,
-            documentCount,
             totalTasks,
             allTasks,
         };

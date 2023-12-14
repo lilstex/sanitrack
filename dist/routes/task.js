@@ -13,6 +13,8 @@ const routes = (0, express_1.Router)();
 routes.post("/create-task", (0, validate_1.default)(task_2.default.createTask), task_1.default.createTask);
 // Route for getting all tasks
 routes.get("/get-all-tasks", task_1.default.getAllTasks);
+// Route for getting all tasks by QRCODE
+routes.get("/get-all-tasks/{qrcode}", task_1.default.getAllTasks);
 // Route for getting task by id
 routes.get("/get-single-task", task_1.default.getTask);
 // Route for updating task

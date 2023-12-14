@@ -25,6 +25,5 @@ const getRoom = async (roomId: any) => {
 }
 
 export default {
-    getRoom,
-    
+    getRoom,   
 };

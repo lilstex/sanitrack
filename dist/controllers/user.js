@@ -16,6 +16,7 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const response_1 = __importDefault(require("../helpers/response"));
 const user_1 = __importDefault(require("../models/user"));
+const task_1 = __importDefault(require("../services/task"));
 // Load environment variables from a .env file
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -81,8 +82,17 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const token = jsonwebtoken_1.default.sign({ userId: user._id, username: user.username, role: user.role }, JWT_KEY, {
             expiresIn: TOKEN_VALIDATION_DURATION,
         });
+        // Generate a QRCODE for cleaner
+        let qrcode;
+        if (user.role === 'cleaner') {
+            const userId = user._id;
+            const role = user.role;
+            const qrCodeData = JSON.stringify({ userId, role });
+            qrcode = yield task_1.default.generateQRCode(qrCodeData);
+        }
         // Serialize user data
         const userData = {
+            QRCode: qrcode || null,
             token,
             id: user._id,
             role: user.role,

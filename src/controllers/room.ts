@@ -58,13 +58,7 @@ const getAllRooms = async (req: AuthenticatedRequest, res: Response): Promise<vo
     try {
         const { role } = req.auth;
         // Explicitly cast query parameters to numbers and handle undefined
-        const page = req.query.page ? Number(req.query.page) : undefined;
-        const documentCount = req.query.documentCount ? Number(req.query.documentCount) : undefined;
-
-        // Check if page or documentCount is undefined before using them
-        if (page === undefined || documentCount === undefined) {
-            return customResponse.badRequestResponse('Invalid page or documentCount', res);
-        }
+        // const page = req.query.page ? Number(req.query.page) : undefined;
 
         // Check role of the user
         if(role === 'cleaner' || role === 'inspector') {
@@ -73,8 +67,6 @@ const getAllRooms = async (req: AuthenticatedRequest, res: Response): Promise<vo
 
         const roomQuery = RoomModel.find()
             .populate('assigned_inspector assigned_manager assigned_cleaner assigned_room')
-            .limit(documentCount)
-            .skip(documentCount * (page - 1))
             .sort({ createdAt: -1 });
 
         const [totalRooms, allRooms] = await Promise.all([
@@ -82,16 +74,8 @@ const getAllRooms = async (req: AuthenticatedRequest, res: Response): Promise<vo
             roomQuery.exec(),
         ]);
 
-        // Calculate prevPage and nextPage
-        const prevPage = page > 1 ? page - 1 : null;
-        const nextPage = documentCount * page < totalRooms ? page + 1 : null;
-
         // Prepare data to send in the response
         const data = {
-            page,
-            prevPage,
-            nextPage,
-            documentCount,
             totalRooms,
             allRooms,
         };

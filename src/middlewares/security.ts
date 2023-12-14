@@ -10,7 +10,8 @@ interface AuthenticatedRequest extends Request {
 // Define a list of non-restricted paths
 const nonRestricted: string[] = [
     "/api/create-user",
-    "/api/login"
+    "/api/login",
+    "/api/task/get-all-tasks/{qrcode}",
 ];
 
 // Middleware function to handle authentication and authorization
