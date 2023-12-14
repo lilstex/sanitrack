@@ -21,7 +21,7 @@ routes.get(
 
 // Route for getting all tasks by QRCODE
 routes.get(
-    "/get-all-tasks/{qrcode}",
+    "/get-all-tasks-by-qrcode",
     task.getAllTasks
 );
 

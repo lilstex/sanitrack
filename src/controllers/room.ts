@@ -34,6 +34,7 @@ const createRoom = async (req: AuthenticatedRequest, res: Response): Promise<voi
         // Create a new Room instance referencing the created RoomDetail
         const room = await RoomModel.create({
             roomName,
+            location,
             detail: roomDetail._id,
         });
 
@@ -66,7 +67,7 @@ const getAllRooms = async (req: AuthenticatedRequest, res: Response): Promise<vo
         }
 
         const roomQuery = RoomModel.find()
-            .populate('assigned_inspector assigned_manager assigned_cleaner assigned_room')
+            .populate('detail')
             .sort({ createdAt: -1 });
 
         const [totalRooms, allRooms] = await Promise.all([

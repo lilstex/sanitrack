@@ -1,5 +1,6 @@
 import * as qrcode from 'qrcode';
 import jsQR from 'jsqr';
+import Jimp from 'jimp';
 
 // Function to generate a QR code with the required data
 const generateQRCode = async (data: string): Promise<any> => {
@@ -19,34 +20,37 @@ const generateQRCode = async (data: string): Promise<any> => {
 };
 
 // Function to decode a QR code
-const decodeQRCode = (imageData: Buffer): any => {
+const decodeQRCode = async(data: any): Promise<any> => {
     try {
-        // Convert Buffer to Uint8Array with type assertion
-        const uint8Array = imageData as Uint8Array;
+        const qrBuffer = Buffer.from(data.replace(/^data:image\/[a-z]+;base64,/, ''), 'base64');
+        
+        const image = await Jimp.read(qrBuffer);
+    
+        // Get the image data
+        const imageData = {
+            data: new Uint8ClampedArray(image.bitmap.data),
+            width: image.bitmap.width,
+            height: image.bitmap.height,
+        };
 
-        // Create a new Uint8ClampedArray from Uint8Array
-        const uint8ClampedArray = new Uint8ClampedArray(uint8Array);
+        // Use jsQR to decode the QR code
+        const decodedQR = jsQR(imageData.data, imageData.width, imageData.height);
 
-        // Use jsQR with Uint8ClampedArray
-        const qrCode = jsQR(uint8ClampedArray, 0, 0);
-
-        if (qrCode) {
-            const decodedData = JSON.parse(qrCode.data as string);
-            return {
-                status: true,
-                data: decodedData
-            };
-        } else {
+        if (!decodedQR) {
             return {
                 status: false,
-                message: 'Failed to decode QR code'
+                message: 'Failed to decode QR code.',
             };
         }
+        return {
+            status: true,
+            data: decodedQR.data
+        };
+
     } catch (error) {
-        console.error('Error decoding QR code:', error);
         return {
             status: false,
-            message: 'Error generating QR code',
+            message: 'Error decoding QR code',
         }
     }
 };

@@ -26,6 +26,7 @@ const createTask = async (req: AuthenticatedRequest, res: Response): Promise<voi
 
         // Get the room details and create task with it
         const { data: room, status, message} = await RoomService.getRoom(roomId);
+   
         if(!status) {
             return customResponse.badRequestResponse(`${message}`, res);
         }
@@ -36,7 +37,7 @@ const createTask = async (req: AuthenticatedRequest, res: Response): Promise<voi
             assigned_manager: userId,
             assigned_cleaner: cleanerId,
             assigned_room: roomId,
-            tasks: room?.detail
+            tasks: room.detail
         })
 
         if(!task) {
@@ -105,22 +106,27 @@ const getAllTasks = async (req: AuthenticatedRequest, res: Response): Promise<vo
         let urole;
         let uid;
         
-        if (req.params.qrcode) {
+        if (req.query.qrcode) {
             // Extract the QR code parameter from the request
-            const { qrcode } = req.params;
-        
+            const qrcode = req.query.qrcode;
             // Decode the QR code data
-            const decodedData = TaskService.decodeQRCode(Buffer.from(qrcode, 'base64'));
-        
+            const {data: decodedData, status} = await TaskService.decodeQRCode(qrcode);
+            if(status === false) {
+                return customResponse.badRequestResponse(decodedData.message, res);
+            }
             // Extract user ID or other relevant data from the decoded QR code
-            ({ userId: uid, role: urole } = decodedData);
+            const obj = JSON.parse(decodedData)
+            urole = obj.role;
+            uid = obj.userId;
+            
         } else if (req.auth) {
             // Destructure role and userId from req.auth
-            ({ userId: uid, role: urole } = req.auth);
+            const { userId, role} = req.auth;
+            urole = role;
+            uid = userId;
         } else {
             return customResponse.badRequestResponse('Missing params.', res);
         }
-        
         let query = {};
 
         switch (urole) {

@@ -11,7 +11,7 @@ interface AuthenticatedRequest extends Request {
 const nonRestricted: string[] = [
     "/api/create-user",
     "/api/login",
-    "/api/task/get-all-tasks/{qrcode}",
+    "/api/task/get-all-tasks-by-qrcode",
 ];
 
 // Middleware function to handle authentication and authorization

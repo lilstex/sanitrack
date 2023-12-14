@@ -41,6 +41,7 @@ const createRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         // Create a new Room instance referencing the created RoomDetail
         const room = yield room_1.default.create({
             roomName,
+            location,
             detail: roomDetail._id,
         });
         return response_1.default.createResponse('Room created successfully', room, res);
@@ -66,7 +67,7 @@ const getAllRooms = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             return response_1.default.badRequestResponse('You do not have permission to list all rooms', res);
         }
         const roomQuery = room_1.default.find()
-            .populate('assigned_inspector assigned_manager assigned_cleaner assigned_room')
+            .populate('detail')
             .sort({ createdAt: -1 });
         const [totalRooms, allRooms] = yield Promise.all([
             room_1.default.countDocuments(),

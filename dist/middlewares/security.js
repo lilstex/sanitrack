@@ -10,7 +10,7 @@ const response_1 = __importDefault(require("../helpers/response"));
 const nonRestricted = [
     "/api/create-user",
     "/api/login",
-    "/api/task/get-all-tasks/{qrcode}",
+    "/api/task/get-all-tasks-by-qrcode",
 ];
 // Middleware function to handle authentication and authorization
 const middleware = (req, res, next) => {

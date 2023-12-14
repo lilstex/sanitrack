@@ -25,7 +25,7 @@ const getRoom = (roomId) => __awaiter(void 0, void 0, void 0, function* () {
         return {
             status: true,
             message: 'Room found',
-            data: room
+            data: JSON.parse(JSON.stringify(room.detail))
         };
     }
     catch (error) {

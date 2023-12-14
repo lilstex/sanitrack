@@ -45,7 +45,7 @@ const createTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             assigned_manager: userId,
             assigned_cleaner: cleanerId,
             assigned_room: roomId,
-            tasks: room === null || room === void 0 ? void 0 : room.detail
+            tasks: room.detail
         });
         if (!task) {
             return response_1.default.badRequestResponse('Failed to create task.', res);
@@ -101,17 +101,24 @@ const getAllTasks = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         let urole;
         let uid;
-        if (req.params.qrcode) {
+        if (req.query.qrcode) {
             // Extract the QR code parameter from the request
-            const { qrcode } = req.params;
+            const qrcode = req.query.qrcode;
             // Decode the QR code data
-            const decodedData = task_2.default.decodeQRCode(Buffer.from(qrcode, 'base64'));
+            const { data: decodedData, status } = yield task_2.default.decodeQRCode(qrcode);
+            if (status === false) {
+                return response_1.default.badRequestResponse(decodedData.message, res);
+            }
             // Extract user ID or other relevant data from the decoded QR code
-            ({ userId: uid, role: urole } = decodedData);
+            const obj = JSON.parse(decodedData);
+            urole = obj.role;
+            uid = obj.userId;
         }
         else if (req.auth) {
             // Destructure role and userId from req.auth
-            ({ userId: uid, role: urole } = req.auth);
+            const { userId, role } = req.auth;
+            urole = role;
+            uid = userId;
         }
         else {
             return response_1.default.badRequestResponse('Missing params.', res);

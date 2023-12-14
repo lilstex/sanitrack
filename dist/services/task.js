@@ -37,6 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const qrcode = __importStar(require("qrcode"));
 const jsqr_1 = __importDefault(require("jsqr"));
+const jimp_1 = __importDefault(require("jimp"));
 // Function to generate a QR code with the required data
 const generateQRCode = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -55,36 +56,36 @@ const generateQRCode = (data) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 // Function to decode a QR code
-const decodeQRCode = (imageData) => {
+const decodeQRCode = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Convert Buffer to Uint8Array with type assertion
-        const uint8Array = imageData;
-        // Create a new Uint8ClampedArray from Uint8Array
-        const uint8ClampedArray = new Uint8ClampedArray(uint8Array);
-        // Use jsQR with Uint8ClampedArray
-        const qrCode = (0, jsqr_1.default)(uint8ClampedArray, 0, 0);
-        if (qrCode) {
-            const decodedData = JSON.parse(qrCode.data);
-            return {
-                status: true,
-                data: decodedData
-            };
-        }
-        else {
+        const qrBuffer = Buffer.from(data.replace(/^data:image\/[a-z]+;base64,/, ''), 'base64');
+        const image = yield jimp_1.default.read(qrBuffer);
+        // Get the image data
+        const imageData = {
+            data: new Uint8ClampedArray(image.bitmap.data),
+            width: image.bitmap.width,
+            height: image.bitmap.height,
+        };
+        // Use jsQR to decode the QR code
+        const decodedQR = (0, jsqr_1.default)(imageData.data, imageData.width, imageData.height);
+        if (!decodedQR) {
             return {
                 status: false,
-                message: 'Failed to decode QR code'
+                message: 'Failed to decode QR code.',
             };
         }
-    }
-    catch (error) {
-        console.error('Error decoding QR code:', error);
         return {
-            status: false,
-            message: 'Error generating QR code',
+            status: true,
+            data: decodedQR.data
         };
     }
-};
+    catch (error) {
+        return {
+            status: false,
+            message: 'Error decoding QR code',
+        };
+    }
+});
 exports.default = {
     generateQRCode,
     decodeQRCode,

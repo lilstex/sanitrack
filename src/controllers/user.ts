@@ -90,7 +90,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
 
         // Serialize user data
         const userData = {
-            QRCode: qrcode || null,
+            QRCode: qrcode.data || null,
             token,
             id: user._id,
             role: user.role,

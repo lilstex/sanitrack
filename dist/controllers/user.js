@@ -92,7 +92,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         // Serialize user data
         const userData = {
-            QRCode: qrcode || null,
+            QRCode: qrcode.data || null,
             token,
             id: user._id,
             role: user.role,

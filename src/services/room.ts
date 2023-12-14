@@ -13,7 +13,7 @@ const getRoom = async (roomId: any) => {
         return {
             status: true,
             message: 'Room found',
-            data: room
+            data: JSON.parse(JSON.stringify(room.detail))
         }
     } catch (error) {
         console.log(error)
